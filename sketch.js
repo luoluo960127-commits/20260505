@@ -93,7 +93,31 @@ function draw() {
     drawConnectors(face, rightEyeOuter);
     drawConnectors(face, leftEyeOuter);
 
-    // 3. 繪製其餘細節 (紅色, 粗細 1)
+    // 3. 繪製口紅 (填充外唇與內唇之間的區域)
+    push();
+    fill(200, 0, 50, 180); // 設定口紅顏色 (深紅，帶點透明度比較自然)
+    noStroke();
+    beginShape();
+    // 繪製外唇輪廓
+    for (let i = 0; i < lipIndices.length; i++) {
+      let p = face.keypoints[lipIndices[i]];
+      let x = map(p.x, 0, 640, -vW / 2, vW / 2);
+      let y = map(p.y, 0, 480, -vH / 2, vH / 2);
+      vertex(x, y);
+    }
+    // 扣除內唇區域 (beginContour 內的點需反向繞行以形成洞口)
+    beginContour();
+    for (let i = innerLipIndices.length - 1; i >= 0; i--) {
+      let p = face.keypoints[innerLipIndices[i]];
+      let x = map(p.x, 0, 640, -vW / 2, vW / 2);
+      let y = map(p.y, 0, 480, -vH / 2, vH / 2);
+      vertex(x, y);
+    }
+    endContour();
+    endShape(CLOSE);
+    pop();
+
+    // 4. 繪製其餘細節線條 (紅色, 粗細 1)
     stroke(255, 0, 0);
     strokeWeight(1);
     drawConnectors(face, rightEyeInner);
