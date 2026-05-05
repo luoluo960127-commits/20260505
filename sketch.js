@@ -15,6 +15,12 @@ function draw() {
   let vW = width * 0.5;  // 畫布寬度的 50%
   let vH = height * 0.5; // 畫布高度的 50%
 
+  // 顯示文字：教科414730217
+  fill(0); // 設定文字顏色為黑色
+  textSize(32); // 設定字體大小
+  textAlign(CENTER, CENTER); // 水平與垂直皆置中
+  text("教科414730217", width / 2, (height - vH) / 4); // 放置在影像上方的空白處中心
+
   push();
   translate(width / 2, height / 2); // 移動到畫布中心
   scale(-1, 1); // 左右顛倒處理 (水平鏡像)
