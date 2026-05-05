@@ -32,19 +32,19 @@ function draw() {
   let vW = width * 0.5;
   let vH = height * 0.5;
 
-  // 顯示文字：教科414730217
+  // 1. 顯示文字：教科414730217 (置中於畫布上方，不隨影像鏡像)
   fill(0); // 設定文字顏色為黑色
   noStroke(); // 文字不描邊
   textSize(32); // 設定字體大小
   textAlign(CENTER, CENTER); // 水平與垂直皆置中
-  text("教科414730217", width / 2, (height - vH) / 4); // 放置在影像上方的空白處中心
+  text("教科414730217", width / 2, (height - vH) / 4); 
 
+  // 2. 繪製攝影機影像與臉部網格
   push();
   translate(width / 2, height / 2); // 移動到畫布中心
   scale(-1, 1); // 左右顛倒處理 (鏡像)
   image(capture, 0, 0, vW, vH); // 繪製影像
 
-  // 繪製臉部辨識線段
   if (faces.length > 0) {
     let face = faces[0];
     stroke(255, 0, 0); // 線條採用紅色
@@ -57,11 +57,11 @@ function draw() {
       let p2 = face.keypoints[lipIndices[i+1]];
 
       if (p1 && p2) {
-        // 將座標映射到中心繪製的影像上
-        let x1 = map(p1.x, 0, 640, -vW / 2, vW / 2);
-        let y1 = map(p1.y, 0, 480, -vH / 2, vH / 2);
-        let x2 = map(p2.x, 0, 640, -vW / 2, vW / 2);
-        let y2 = map(p2.y, 0, 480, -vH / 2, vH / 2);
+        // 將座標映射到縮放 50% 且置中的影像範圍 (-vW/2 到 vW/2)
+        let x1 = map(p1.x, 0, capture.width, -vW / 2, vW / 2);
+        let y1 = map(p1.y, 0, capture.height, -vH / 2, vH / 2);
+        let x2 = map(p2.x, 0, capture.width, -vW / 2, vW / 2);
+        let y2 = map(p2.y, 0, capture.height, -vH / 2, vH / 2);
         line(x1, y1, x2, y2);
       }
     }
