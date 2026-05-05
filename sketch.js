@@ -47,10 +47,11 @@ function draw() {
   scale(-1, 1); // 左右顛倒處理 (鏡像)
   image(capture, 0, 0, vW, vH); // 繪製影像
 
-  if (faces.length > 0 && capture.width > 0) {
+  // 檢查是否有偵測到臉部
+  if (faces.length > 0) {
     let face = faces[0];
     stroke(255, 0, 0); // 線條採用紅色
-    strokeWeight(1);   // 線條粗細改為 1
+    strokeWeight(1);   // 遵照要求改為 1
     noFill();
 
     // 1. 利用 line 指令串接外唇編號點
@@ -59,11 +60,11 @@ function draw() {
       let p2 = face.keypoints[lipIndices[(i + 1) % lipIndices.length]]; // 閉合嘴唇迴圈
 
       if (p1 && p2) {
-        // 將影片原始座標映射至畫布上影像的大小範圍 (-vW/2 到 vW/2)
-        let x1 = map(p1.x, 0, capture.width, -vW / 2, vW / 2);
-        let y1 = map(p1.y, 0, capture.height, -vH / 2, vH / 2);
-        let x2 = map(p2.x, 0, capture.width, -vW / 2, vW / 2);
-        let y2 = map(p2.y, 0, capture.height, -vH / 2, vH / 2);
+        // 使用固定尺寸 640x480 映射，避免 capture.width 尚未初始化導致 NaN
+        let x1 = map(p1.x, 0, 640, -vW / 2, vW / 2);
+        let y1 = map(p1.y, 0, 480, -vH / 2, vH / 2);
+        let x2 = map(p2.x, 0, 640, -vW / 2, vW / 2);
+        let y2 = map(p2.y, 0, 480, -vH / 2, vH / 2);
         line(x1, y1, x2, y2);
       }
     }
@@ -74,10 +75,10 @@ function draw() {
       let p2 = face.keypoints[innerLipIndices[(i + 1) % innerLipIndices.length]]; // 閉合嘴唇迴圈
 
       if (p1 && p2) {
-        let x1 = map(p1.x, 0, capture.width, -vW / 2, vW / 2);
-        let y1 = map(p1.y, 0, capture.height, -vH / 2, vH / 2);
-        let x2 = map(p2.x, 0, capture.width, -vW / 2, vW / 2);
-        let y2 = map(p2.y, 0, capture.height, -vH / 2, vH / 2);
+        let x1 = map(p1.x, 0, 640, -vW / 2, vW / 2);
+        let y1 = map(p1.y, 0, 480, -vH / 2, vH / 2);
+        let x2 = map(p2.x, 0, 640, -vW / 2, vW / 2);
+        let y2 = map(p2.y, 0, 480, -vH / 2, vH / 2);
         line(x1, y1, x2, y2);
       }
     }
