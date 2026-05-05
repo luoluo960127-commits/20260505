@@ -36,7 +36,7 @@ function setup() {
 }
 
 function draw() {
-  background('#e7c6ff'); // 設定背景顏色
+  background('#fdf0d5'); // 設定畫布基礎背景顏色
 
   // 設定顯示影像的尺寸 (整個畫布寬高的 50%)
   let vW = width * 0.5;
@@ -58,26 +58,46 @@ function draw() {
   // 檢查是否有偵測到臉部
   if (faces.length > 0) {
     let face = faces[0];
+
+    // 0. 繪製背景遮罩 (讓影像只出現在臉部輪廓內)
+    push();
+    fill('#fdf0d5');
+    noStroke();
+    // 繪製一個巨大的外部矩形，並在裡面扣掉臉部輪廓
+    beginShape();
+    vertex(-width, -height);
+    vertex(width, -height);
+    vertex(width, height);
+    vertex(-width, height);
+    beginContour();
+    for (let i = faceSilhouette.length - 1; i >= 0; i--) {
+      let p = face.keypoints[faceSilhouette[i]];
+      let x = map(p.x, 0, 640, -vW / 2, vW / 2);
+      let y = map(p.y, 0, 480, -vH / 2, vH / 2);
+      vertex(x, y);
+    }
+    endContour();
+    endShape(CLOSE);
+    pop();
+
     noFill();
 
-    // 0. 繪製臉部輪廓 (藍色, 粗細 2)
-    stroke(0, 0, 255);
+    // 1. 繪製臉部輪廓 (螢光藍色, 粗細 2)
+    stroke(0, 255, 255); 
     strokeWeight(2);
     drawConnectors(face, faceSilhouette);
 
-    // 設定眼睛與嘴唇的樣式 (紅色, 粗細 1)
+    // 2. 繪製黑眼圈 (眼睛外圈, 灰色偏黑, 粗細 15)
+    stroke(50);
+    strokeWeight(15);
+    drawConnectors(face, rightEyeOuter);
+    drawConnectors(face, leftEyeOuter);
+
+    // 3. 繪製其餘細節 (紅色, 粗細 1)
     stroke(255, 0, 0);
     strokeWeight(1);
-
-    // 1. 繪製右眼 (247外圍圈與246內圈)
-    drawConnectors(face, rightEyeOuter);
     drawConnectors(face, rightEyeInner);
-
-    // 2. 繪製左眼 (內外圈)
-    drawConnectors(face, leftEyeOuter);
     drawConnectors(face, leftEyeInner);
-
-    // 3. 繪製嘴唇 (保留部分)
     drawConnectors(face, lipIndices);
     drawConnectors(face, innerLipIndices);
   }
@@ -98,39 +118,6 @@ function drawConnectors(face, indices) {
       line(x1, y1, x2, y2);
     }
   }
-}
-
-function windowResized() {
-    // 1. 利用 line 指令串接外唇編號點
-    for (let i = 0; i < lipIndices.length; i++) {
-      let p1 = face.keypoints[lipIndices[i]];
-      let p2 = face.keypoints[lipIndices[(i + 1) % lipIndices.length]]; // 閉合嘴唇迴圈
-
-      if (p1 && p2) {
-        // 使用固定尺寸 640x480 映射，避免 capture.width 尚未初始化導致 NaN
-        let x1 = map(p1.x, 0, 640, -vW / 2, vW / 2);
-        let y1 = map(p1.y, 0, 480, -vH / 2, vH / 2);
-        let x2 = map(p2.x, 0, 640, -vW / 2, vW / 2);
-        let y2 = map(p2.y, 0, 480, -vH / 2, vH / 2);
-        line(x1, y1, x2, y2);
-      }
-    }
-
-    // 2. 利用 line 指令串接內唇編號點
-    for (let i = 0; i < innerLipIndices.length; i++) {
-      let p1 = face.keypoints[innerLipIndices[i]];
-      let p2 = face.keypoints[innerLipIndices[(i + 1) % innerLipIndices.length]]; // 閉合嘴唇迴圈
-
-      if (p1 && p2) {
-        let x1 = map(p1.x, 0, 640, -vW / 2, vW / 2);
-        let y1 = map(p1.y, 0, 480, -vH / 2, vH / 2);
-        let x2 = map(p2.x, 0, 640, -vW / 2, vW / 2);
-        let y2 = map(p2.y, 0, 480, -vH / 2, vH / 2);
-        line(x1, y1, x2, y2);
-      }
-    }
-  }
-  pop();
 }
 
 function windowResized() {
